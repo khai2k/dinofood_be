@@ -1,0 +1,5 @@
+{
+  "!(log|temp|public|ecosystem.config)*.+(js|jsx|ts)": [
+    "eslint --max-warnings 0"
+  ]
+}

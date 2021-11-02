@@ -1,0 +1,151 @@
+{% extends "layout/admin/index.html" %}
+
+{% block breadcrumb %}
+  <section class="content-header">
+    <h1>Receipt</h1>
+    <ol class="breadcrumb">
+      <li>
+        <a href="/admin">
+          <i class="fa fa-dashboard"></i>
+          CMS
+        </a>
+      </li>
+      <li class="active">Receipts</li>
+    </ol>
+  </section>
+{% endblock %}
+
+{% block content %}
+  <div class="box">
+    <div class="box-header">
+      <h3 class="box-title">Receipts list</h3>
+    </div><!-- /.box-header -->
+
+    <div class="box-body table-responsive no-padding">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            {# <th>Order date</th> #}
+            <th>Title</th>
+            <th>Sub total</th>
+            <th>Shipping fee</th>
+            <th>Discount</th>
+            <th>Amount</th>
+            <th>Created at</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for receipt in docs %}
+            <tr>
+              {# <td class="date-time-col invisible">{{ receipt.orderDate }}</td> #}
+              <td>{{ receipt.title }}</td>
+              <td>{{ helpers.vndCurrency(receipt.subTotal) }}</td>
+              <td>{{ helpers.vndCurrency(receipt.shippingFee) }}</td>
+              <td>{{ helpers.vndCurrency(receipt.discount) }}</td>
+              <td>{{ helpers.vndCurrency(receipt.amount) }}</td>
+              <td class="date-time-col invisible">{{ receipt.createdAt }}</td>
+              <td>
+                <label data-id="{{ receipt._id }}" class="label label-{{ 'success' if receipt.paid else 'warning' }}">
+                  {{ 'Paid' if receipt.paid else 'Unpaid' }}
+                </label>
+              </td>
+              <td>
+                <button data-id="{{ receipt._id }}" class="btn btn-info btn-xs btn-flat">Info</button>
+
+                {% if not receipt.paid and isAuth(receipt.author) %}
+                  <button data-id="{{ receipt._id }}" class="btn-paid btn btn-success btn-xs btn-flat">Paid</button>
+                  {% if not receipt.confirmed %}
+                    <button data-id="{{ receipt._id }}" class="btn-delete btn btn-danger btn-xs btn-flat">Delete</button>
+                  {% endif %}
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+
+          {% if not docs.length %}
+            <tr class="alert-warning">
+              <td colspan="100%">List empty</td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div><!-- /.box-body -->
+
+    {# pagination #}
+    {% include "layout/admin/pagination.html" %}
+  </div><!-- ./box -->
+{% endblock %}
+
+{% block modal %}
+  <!-- Modal -->
+  <div id="receipt-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title"></h4>
+        </div>
+
+        <div class="modal-body">
+          <div class="primary-info row">
+            <div class="col-sm-3">Sub total</div>
+            <div class="col-sm-9"></div>
+            <div class="col-sm-3">Shipping fee</div>
+            <div class="col-sm-9"></div>
+            <div class="col-sm-3">Discount</div>
+            <div class="col-sm-9"></div>
+            <div class="col-sm-3">Amount</div>
+            <div class="col-sm-9"></div>
+          </div>
+
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Member</th>
+                <th>Price</th>
+                <th>Fee</th>
+                <th>Discount</th>
+                <th>Amount</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {# <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div> #}
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block script %}
+  <script>
+    window.receipts = {{ docs | dump | safe }}.reduce((result, doc) => ({ ...result, [doc._id]: doc }), {});
+
+    $(document).ready(function() {
+      $('.date-time-col').map(function() {
+        const text = $(this).text()
+        $(this).text(moment(new Date(text)).format('hh:mm A DD MMM, YYYY'))
+        $(this).text(moment(new Date(text)).format('hh:mm A DD MMM, YYYY'))
+        $(this).removeClass('invisible')
+      })
+    })
+  </script>
+
+  <script src="/static/js/receipt.js"></script>
+{% endblock %}

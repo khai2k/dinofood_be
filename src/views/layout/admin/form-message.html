@@ -1,0 +1,15 @@
+
+{% if errors and errors.length %}
+  <div class="form-group">
+    <div class="alert alert-danger">
+      <!-- {{ errors | dump | safe }} -->
+      {{ errors[0] }}
+    </div>
+  </div>
+{% endif %}
+
+{% if messages %}
+  <div class="form-group">
+    <div class="alert alert-info">{{ messages }}</div>
+  </div>
+{% endif %}

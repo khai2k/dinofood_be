@@ -1,0 +1,13 @@
+{
+  "delay": 5,
+  "env": {
+    "NODE_ENV": "development"
+  },
+  "ignore": [
+    "./node_modules/",
+    "./export/",
+    "./public/",
+    "./test/"
+  ],
+  "ext": "js ts json html css vue template"
+}

@@ -1,0 +1,30 @@
+
+<div class="dropdown-divider"></div>
+<nav aria-label="Page navigation">
+  <ul class="pagination">
+    <li class="page-item {% if not page or page <= 1 %}disabled{% endif %}">
+      {% if not page or page <= 1 %}
+        <a class="page-link" href="javascript:void(0)">«</a>
+      {% else %}
+        <a class="page-link" href="{{ route.path }}?{{ helpers.generateQueryStr(helpers.cloneObject(query, { page: page - 1 })) }}">«</a>
+      {% endif %}
+    </li>
+
+    {% set arrPages = helpers.generateArray(pages) %}
+    {% for pageNo in arrPages %}
+      <li class="page-item {% if pageNo === page %}active{% endif %}">
+        <a class="page-link" href="{{ route.path }}?{{ helpers.generateQueryStr(helpers.cloneObject(query, { page: pageNo })) }}">
+          {{ pageNo }}
+        </a>
+      </li>
+    {% endfor %}
+
+    <li class="page-item {% if not page or page >= pages %}disabled{% endif %}">
+      {% if not page or page >= pages %}
+        <a class="page-link" href="javascript:void(0)">»</a>
+      {% else %}
+        <a class="page-link" href="{{ route.path }}?{{ helpers.generateQueryStr(helpers.cloneObject(query, { page: page + 1 })) }}">»</a>
+      {% endif %}
+    </li>
+  </ul>
+</nav>

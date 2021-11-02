@@ -1,0 +1,9 @@
+{
+  "git.ignoreLimitWarning": true,
+  "emmet.includeLanguages": {
+    "nunjucks": "html"
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  }
+}

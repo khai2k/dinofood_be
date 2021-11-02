@@ -1,0 +1,90 @@
+{% extends "layout/admin/index.html" %}
+
+{% block style %}
+  <style>
+    pre {
+      font-family: 'Source Sans Pro', sans-serif;
+      line-height: 24px;
+      white-space: pre-wrap;
+      overflow-wrap: break-word;
+    }
+  </style>
+{% endblock %}
+
+{% block breadcrumb %}
+  <section class="content-header">
+    <h1>Receipt</h1>
+    <ol class="breadcrumb">
+      <li>
+        <a href="/admin">
+          <i class="fa fa-dashboard"></i>
+          CMS
+        </a>
+      </li>
+      <li><a href="/admin/receipts">Receipt</a></li>
+      <li class="active">Create</li>
+    </ol>
+  </section>
+{% endblock %}
+
+{% block content %}
+  <!-- general form elements -->
+  <div class="box box-primary">
+    <div class="box-header with-border">
+      <h3 class="box-title">Create receipt</h3>
+    </div><!-- /.box-header -->
+
+    {% include "layout/admin/form-message.html" %}
+
+    <!-- form start -->
+    <form role="form" method="POST">
+      <div class="box-body">
+        <div class="form-group">
+          <label for="receipt-title">Title</label>
+          <input type="text" name="title" value="{{ old('title') }}" id="receipt-title" class="form-control" placeholder="Title..." required>
+        </div>
+
+        <div class="form-group">
+          <label for="receipt-shipping-fee">Shipping fee</label>
+          <input type="number" name="shipping-fee" value="{{ old('shipping-fee', 15000) }}" id="receipt-shipping-fee" min="0" class="form-control" placeholder="Shipping fee..." required>
+          <small id="shipping-fee-help" class="form-text text-muted"></small>
+        </div>
+
+        <div class="form-group">
+          <label for="receipt-discount">Discount</label>
+          <input type="number" name="discount" value="{{ old('discount', 0) }}" id="receipt-discount" min="0" class="form-control" placeholder="Discount..." required>
+          <small id="discount-help" class="form-text text-muted"></small>
+        </div>
+
+        <div class="form-group">
+          <label for="receipt-info">Receipt info</label>
+          <textarea name="info" id="receipt-info" class="form-control" rows="5" placeholder="Receipt info..." required>{{ old('info') }}</textarea>
+          <small id="info-help" class="form-text text-muted"></small>
+
+          {% for user in activateMembers %}
+            <a href="javascript:void(0)" class="btn btn-xs btn-flat btn-info insert-member">
+              {{ user.username }}
+            </a>
+          {% endfor %}
+        </div>
+
+        <div class="form-group">
+          <label>More information</label>
+          <pre class="slack-info">Empty</pre>
+        </div>
+      </div><!-- /.box-body -->
+
+      <div class="box-footer">
+        <button type="submit" class="btn btn-primary btn-flat btn-sm">Submit</button>
+        <a href="javascript:void(0)" class="btn btn-info btn-checkInfo btn-flat btn-sm">Check</a>
+      </div>
+    </form><!-- /form -->
+  </div><!-- /.box -->
+{% endblock %}
+
+{% block script %}
+  <script>
+    window.users = {{ users | dump | safe }};
+  </script>
+  <script src="/static/js/receipt.js"></script>
+{% endblock %}

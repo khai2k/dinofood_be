@@ -1,0 +1,103 @@
+{% extends "layout/web/index.html" %}
+
+{% block content %}
+  <div class="col-sm-6 offset-sm-3 col-xs-12">
+    <h3>Gửi yêu cầu rút/nạp tiền từ Onib.</h3>
+    <pre id="admin-info"></pre>
+
+    <form method="POST" autocomplete="off">
+      {% if errors and errors.length %}
+        <div class="form-group">
+          <div class="alert alert-danger">
+            {% for error in errors %}
+              {{ error }}
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      {% if messages and messages.length %}
+        <div class="form-group">
+          <div class="alert alert-info">
+            {% for message in messages %}
+              {{ message }}
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="form-group">
+        <label for="email-input">Email</label>
+        {% if old('email') %}
+          <input type="email" name="email" id="email-input" value="{{ old('email') }}" class="form-control" placeholder="Email..." required>
+        {% else %}
+          {% if auth and auth.credentials and auth.credentials.email %}
+            <input type="email" name="email" id="email-input" value="{{ auth.credentials.email }}" class="form-control" placeholder="Email..." required>
+          {% else %}
+            <input type="email" name="email" id="email-input" class="form-control" placeholder="Email..." required>
+          {% endif %}
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="type">Type</label>
+        <select name="type" id="type" class="form-control" required>
+            <option value="income" {% if old('type') == 'income' %}selected{% endif %}>Yêu cầu nạp</option>
+            <option value="outcome" {% if old('type') == 'outcome' %}selected{% endif %}>Yêu cầu rút</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="payment-method">Payment method</label>
+        <select name="paymentMethod" id="payment-method" class="form-control" required>
+          {% for paymentMethod in paymentMethods %}
+            <option value="{{ paymentMethod }}" {% if old('paymentMethod') == paymentMethod %}selected{% endif %}>
+              {{ helpers.pascalCase(paymentMethod) }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="amount">Amount</label>
+        <input type="number" name="amount" id="amount" min="0" value="{{ old('amount') }}" class="form-control" required placeholder="Amount...">
+        <small id="amount-help" class="form-text text-muted"></small>
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea name="description" id="description" class="form-control" rows="7" placeholder="Payment information...">{{ old('description') }}</textarea>
+      </div>
+
+      <div class="form-group">
+        <button type="submit" class="btn btn-flat btn-primary">Submit</button>
+      </div>
+    </form>
+  </div>
+{% endblock %}
+
+{% block script %}
+  <script src="/static/js/paymentRequest.js"></script>
+  <script>
+    $(document).ready(function() {
+      const info = [
+        'Accept cash',
+        'E-Wallet: MOMO, MOCA, VINID, VNPAY, ZALOPAY, SHOPEEPAY, VIETTELPAY | 0971407794',
+        '-------------------SCB ebanking-------------------',
+        'STK: 14396880001',
+        'Name: LE THANH DANH',
+        'Branch: Cống Quỳnh',
+        '-------------------MB-Bank-------------------',
+        'STK: 0971407794',
+        'Name: LE THANH DANH',
+        '-------------------Techcombank-------------------',
+        'STK: 0971407794',
+        'Name: LE THANH DANH',
+        '-------------------Techcombank-------------------',
+        'STK: 19035877910015',
+        'Name: LE THANH DANH'
+      ].join('\n')
+      $('#admin-info').text(info)
+    })
+  </script>
+{% endblock %}

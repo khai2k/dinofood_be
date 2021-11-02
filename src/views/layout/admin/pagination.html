@@ -1,0 +1,28 @@
+<div class="box-footer clearfix">
+    <ul class="pagination pagination-sm no-margin pull-right">
+      <li class="{% if not page or page <= 1 %}disabled{% endif %}">
+        {% if not page or page <= 1 %}
+          <a href="javascript:void(0)">«</a>
+        {% else %}
+          <a href="{{ route.path }}?{{ helpers.generateQueryStr(helpers.cloneObject(query, { page: page - 1 })) }}">«</a>
+        {% endif %}
+      </li>
+
+      {% set arrPages = helpers.generateArray(pages) %}
+      {% for pageNo in arrPages %}
+        <li class="{% if pageNo === page %}active{% endif %}">
+          <a href="{{ route.path }}?{{ helpers.generateQueryStr(helpers.cloneObject(query, { page: pageNo })) }}">
+            {{ pageNo }}
+          </a>
+        </li>
+      {% endfor %}
+
+      <li class="{% if not page or page >= pages %}disabled{% endif %}">
+        {% if not page or page >= pages %}
+          <a href="javascript:void(0)">»</a>
+        {% else %}
+          <a href="{{ route.path }}?{{ helpers.generateQueryStr(helpers.cloneObject(query, { page: page + 1 })) }}">»</a>
+        {% endif %}
+      </li>
+    </ul>
+</div>

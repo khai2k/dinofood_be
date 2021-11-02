@@ -1,0 +1,113 @@
+{% extends "layout/admin/index.html" %}
+
+{% block breadcrumb %}
+  <section class="content-header">
+    <h1>User</h1>
+    <ol class="breadcrumb">
+      <li>
+        <a href="/admin">
+          <i class="fa fa-dashboard"></i>
+          CMS
+        </a>
+      </li>
+      <li class="active">Users</li>
+    </ol>
+  </section>
+{% endblock %}
+
+{% block content %}
+  <div class="box">
+    <div class="box-header">
+      <h3 class="box-title">Users list</h3>
+
+      <div class="box-tools">
+        <div class="input-group input-group-sm hidden-xs" style="width: 150px;">
+          <button onclick="helpers.sendRequirePaymentNotification(event)" class="btn btn-warning btn-sm btn-flat pull-right">Send require payment notify</button>
+        </div>
+      </div>
+    </div><!-- /.box-header -->
+
+    <div class="box-body table-responsive no-padding">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th class="pointer" onclick="helpers.sort('username', 'sortBy')">
+              User
+              <i class="fa fa-sort-alpha-{{ 'desc' if old('sortBy') == '-username' else 'asc' }}"></i>
+            </th>
+
+            <th class="pointer" onclick="helpers.sort('name', 'sortBy')">
+              Name
+              <i class="fa fa-sort-alpha-{{ 'desc' if old('sortBy') == '-name' else 'asc' }}"></i>
+            </th>
+
+            <th class="pointer" onclick="helpers.sort('email', 'sortBy')">
+              Email
+              <i class="fa fa-sort-alpha-{{ 'desc' if old('sortBy') == '-email' else 'asc' }}"></i>
+            </th>
+
+            <th class="pointer" onclick="helpers.sort('balance', 'sortBy')">
+              Balance
+              <i class="fa fa-sort-amount-{{ 'desc' if old('sortBy') == '-balance' else 'asc' }}"></i>
+            </th>
+
+            <th class="pointer" onclick="helpers.sort('updatedAt', 'sortBy')">
+              Updated at
+              <i class="fa fa-sort-numeric-{{ 'desc' if old('sortBy') == '-updatedAt' else 'asc' }}"></i>
+            </th>
+
+            <th class="pointer" onclick="helpers.sort('isActive', 'sortBy')">
+              Status
+              <i class="fa fa-sort-{{ 'desc' if old('sortBy') == '-isActive' else 'asc' }}"></i>
+            </th>
+
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for user in docs %}
+            <tr>
+              {# <td>{{ user._id }}</td> #}
+              <td>{{ user.username }}</td>
+              <td>{{ user.name }}</td>
+              <td>{{ user.email }}</td>
+              <td>{{ helpers.vndCurrency(user.balance) }}</td>
+              <td class="date-time-col invisible">{{ user.updatedAt }}</td>
+              <td>
+                <label class="label label-{{ 'success' if user.isActive else 'warning' }}">
+                  {{ 'Activated' if user.isActive else 'Inactivated' }}
+                </label>
+              </td>
+              <td>
+                <a href="/admin/users/{{user._id}}/edit" class="btn btn-block btn-warning btn-xs btn-flat">Edit</a>
+              </td>
+            </tr>
+          {% endfor %}
+
+          {% if not docs.length %}
+            <tr class="alert-warning">
+              <td colspan="100%">List empty</td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table><!-- /table -->
+    </div><!-- /.box-body -->
+
+    {# pagination #}
+    {% include "layout/admin/pagination.html" %}
+  </div><!-- /.box -->
+{% endblock %}
+
+{% block script %}
+  <script>
+    $(document).ready(function() {
+      $('.date-time-col').map(function() {
+        const text = $(this).text()
+        $(this).text(moment(new Date(text)).format('hh:mm A DD MMM, YYYY'))
+        $(this).text(moment(new Date(text)).format('hh:mm A DD MMM, YYYY'))
+        $(this).removeClass('invisible')
+      })
+    })
+  </script>
+{% endblock %}

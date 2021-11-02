@@ -1,0 +1,102 @@
+{% extends "layout/admin/index.html" %}
+
+{% block breadcrumb %}
+  <section class="content-header">
+    <h1>Receipt</h1>
+    <ol class="breadcrumb">
+      <li>
+        <a href="/admin">
+          <i class="fa fa-dashboard"></i>
+          CMS
+        </a>
+      </li>
+      <li class="active">Payment requests</li>
+    </ol>
+  </section>
+{% endblock %}
+
+{% block content %}
+  <div class="box">
+    <div class="box-header">
+      <h3 class="box-title">Payment requests list</h3>
+    </div><!-- /.box-header -->
+
+    <div class="box-body table-responsive no-padding">
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Type</th>
+            <th>Method</th>
+            <th>Amount</th>
+            <th>Description</th>
+            <th>Created at</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for paymentRequest in docs %}
+            <tr>
+              <td>{{ paymentRequest.user.name }}</td>
+              <td>{{ 'Nạp tiền' if paymentRequest.type == 'income' else 'Rút tiền' }}</td>
+              <td>{{ paymentRequest.paymentMethod }}</td>
+              <td>{{ '+' if paymentRequest.type == 'income' else '-' }}{{ helpers.vndCurrency(paymentRequest.amount) }}</td>
+              <td>{{ paymentRequest.description }}</td>
+              <td class="date-time-col invisible">{{ paymentRequest.createdAt }}</td>
+              <td>
+                {% if paymentRequest.status == 'approved' %}
+                  {% set statusClass = 'success' %}
+                {% elif paymentRequest.status == 'rejected' %}
+                  {% set statusClass = 'danger' %}
+                {% elif paymentRequest.status == 'cancelled' %}
+                  {% set statusClass = 'danger' %}
+                {% else %}
+                  {% set statusClass = 'warning' %}
+                {% endif %}
+                <label data-id="{{ paymentRequest._id }}" class="label label-{{ statusClass }}">
+                  {{ helpers.pascalCase(paymentRequest.status) }}
+                </label>
+              </td>
+              <td>
+                <button data-id="{{ paymentRequest._id }}" class="btn-approve btn btn-xs btn-success btn-flat {% if paymentRequest.status != 'pending' %}hidden{% endif %}">
+                  Approve
+                </button>
+                <button data-id="{{ paymentRequest._id }}" class="btn-reject btn btn-xs btn-warning btn-flat {% if paymentRequest.status != 'pending' %}hidden{% endif %}">
+                  Reject
+                </button>
+                <button data-id="{{ paymentRequest._id }}" class="btn-delete btn btn-xs btn-danger btn-flat {% if paymentRequest.status != 'rejected' or paymentRequest.status != 'cancelled' %}hidden{% endif %}">
+                  Delete
+                </button>
+              </td>
+            </tr>
+          {% endfor %}
+
+          {% if not docs.length %}
+            <tr class="alert-warning">
+              <td colspan="100%">List empty</td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div><!-- /.box-body -->
+
+    {# pagination #}
+    {% include "layout/admin/pagination.html" %}
+  </div><!-- ./box -->
+{% endblock %}
+
+{% block script %}
+  <script src="/static/js/paymentRequest.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('.date-time-col').map(function() {
+        const text = $(this).text()
+        $(this).text(moment(new Date(text)).format('hh:mm A DD MMM, YYYY'))
+        $(this).text(moment(new Date(text)).format('hh:mm A DD MMM, YYYY'))
+        $(this).removeClass('invisible')
+      })
+    })
+  </script>
+{% endblock %}

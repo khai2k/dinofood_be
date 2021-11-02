@@ -1,0 +1,197 @@
+{% extends "layout/web/index.html" %}
+
+{% block content %}
+  <div class="col-sm-8 offset-sm-2 col-xs-12 pt-4">
+    <form method="GET">
+      {% if errors and errors.length %}
+        <div class="form-group">
+          <div class="alert alert-danger">
+            <!-- {{ errors | dump | safe }} -->
+            {{ errors[0] }}
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="form-group">
+        <label for="email-input">Email</label>
+        {% if old('email') %}
+          <input type="email" name="email" id="email-input" value="{{ old('email') }}" class="form-control" placeholder="Email..." required>
+        {% else %}
+          {% if auth and auth.credentials and auth.credentials.email %}
+            <input type="email" name="email" id="email-input" value="{{ auth.credentials.email }}" class="form-control" placeholder="Email..." required>
+          {% else %}
+            <input type="email" name="email" id="email-input" class="form-control" placeholder="Email..." required>
+          {% endif %}
+        {% endif %}
+      </div>
+
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+  </div>
+
+    <div class="col-sm-8 offset-sm-2 col-xs-12 pt-4">
+      <div class="dropdown-divider"></div>
+      <h1>Current balance: {{ helpers.vndCurrency(balance) }}</h1>
+      <div class="dropdown-divider"></div>
+    </div>
+
+    <div class="col-sm-8 offset-sm-2 col-xs-12 pt-4">
+      {% if histories and histories.length %}
+        <h3>Balance histories</h3>
+
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th scope="col">Created at</th>
+              <th scope="col">Amount</th>
+              <th scope="col">Reason</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for history in histories %}
+              <tr>
+                <td class="date-time-col invisible">
+                  {{ history.createdAt }}
+                </td>
+
+                <td>
+                  {{ '+' if history.type == 'income' else '-' }}{{ helpers.vndCurrency(history.amount) }}
+                </td>
+
+                <td>
+                  {% if not (history.reference.value and history.reference.value.title) %}
+                    {{ history.description }}
+                  {% else %}
+                    <a href="javascript:void(0)" data-ref="{{ history.reference.model }}" data-id="{{ history.reference.value._id }}">
+                      {{ history.reference.value.title }}
+                    </a>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        {% include "layout/web/pagination.html" %}
+      {% endif %}
+    </div>
+{% endblock %}
+
+{% block modal %}
+  <!-- Modal -->
+  <div id="receipt-modal"class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"></h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <div class="primary-info row">
+            <div class="col-sm-3">Sub total</div>
+            <div class="col-sm-9"></div>
+            <div class="col-sm-3">Shipping fee</div>
+            <div class="col-sm-9"></div>
+            <div class="col-sm-3">Discount</div>
+            <div class="col-sm-9"></div>
+            <div class="col-sm-3">Amount</div>
+            <div class="col-sm-9"></div>
+          </div>
+
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Member</th>
+                <th>Price</th>
+                <th>Discount</th>
+                <th>Amount</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {# <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div> #}
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block script %}
+  <!-- Moment.js -->
+  <script src="/components/moment/min/moment.min.js"></script>
+
+  <script>
+    $(document).ready(function() {
+      $('.date-time-col').map(function() {
+        const text = $(this).text()
+        $(this).text(moment(new Date(text)).format('hh:mm A DD MMM, YYYY'))
+        $(this).text(moment(new Date(text)).format('hh:mm A DD MMM, YYYY'))
+        $(this).removeClass('invisible')
+      })
+
+      function showModal(receipt) {
+        $('#receipt-modal').find('.modal-title').text(receipt.title)
+
+        $('#receipt-modal').find('.primary-info').html([
+          `<div class="col-sm-3">Sub total</div>`,
+          `<div class="col-sm-9">${helpers.formatMoney(receipt.subTotal)} vnđ</div>`,
+          `<div class="col-sm-3">Shipping fee</div>`,
+          `<div class="col-sm-9">${helpers.formatMoney(receipt.shippingFee)} vnđ</div>`,
+          `<div class="col-sm-3">Discount</div>`,
+          `<div class="col-sm-9">${helpers.formatMoney(receipt.discount)} vnđ</div>`,
+          `<div class="col-sm-3">Amount</div>`,
+          `<div class="col-sm-9">${helpers.formatMoney(receipt.amount)} vnđ</div>`
+        ].join(''))
+
+        $('#receipt-modal').find('tbody').html(
+          receipt.members.map(({ member, price, discount = 0, amount })=> [
+            '<tr>',
+              `<td>${member.email}</td>`,
+              `<td>${helpers.formatMoney(price)} vnđ</td>`,
+              `<td>${helpers.formatMoney(discount)} vnđ</td>`,
+              `<td>${helpers.formatMoney(amount)} vnđ</td>`,
+            '</tr>',
+          ].join(''))
+        )
+
+        $('#receipt-modal').modal('show')
+      }
+
+      // get receipt information
+      $('[data-ref="Receipt"]').on('click', function(e) {
+        const _id = $(this).attr('data-id')
+        if (_id) {
+          $.ajax({
+            method: 'GET',
+            url: `/api/receipts/${_id}`,
+            dataType: 'json',
+            beforeSend: function() {
+              console.log('beforeSend')
+            },
+            success: showModal,
+            error: function() {
+              console.log('error')
+            },
+            complete: function() {
+              console.log('complete')
+            }
+          })
+        }
+      })
+    })
+  </script>
+{% endblock %}
