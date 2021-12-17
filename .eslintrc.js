@@ -9,10 +9,7 @@ module.exports = {
   parserOptions: {
     sourceType: 'module'
   },
-  extends: [
-    'standard',
-    'eslint:recommended'
-  ],
+  extends: ['standard', 'eslint:recommended'],
   plugins: ['node'],
   rules: {
     semi: ['error', 'never'],
@@ -27,15 +24,21 @@ module.exports = {
     'no-return-await': 'error',
     'no-multi-spaces': 'error',
     'no-trailing-spaces': 'error',
-    'prefer-const': ['error', {
-      destructuring: 'any',
-      ignoreReadBeforeAssign: false
-    }],
-    'no-multiple-empty-lines': ['error', {
-      max: 1,
-      maxEOF: 0,
-      maxBOF: 0
-    }],
+    'prefer-const': [
+      'error',
+      {
+        destructuring: 'any',
+        ignoreReadBeforeAssign: false
+      }
+    ],
+    'no-multiple-empty-lines': [
+      'error',
+      {
+        max: 1,
+        maxEOF: 0,
+        maxBOF: 0
+      }
+    ],
     'key-spacing': [
       2,
       {

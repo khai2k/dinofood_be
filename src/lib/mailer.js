@@ -24,15 +24,15 @@ module.exports = (() => {
       return { message: 'Mailer is disabled.' }
     }
 
-    const listAllowDev = [
-      'danh.le@dinovative.com',
-      'danh.danh20051995@gmail.com'
-    ]
-    if (process._isDev && !listAllowDev.includes(message.to)) {
-      console.log('============================ Send email ============================')
-      console.log(message)
-      return { message: 'Receiver not allowed.' }
-    }
+    // const listAllowDev = [
+    //   'danh.le@dinovative.com',
+    //   'danh.danh20051995@gmail.com'
+    // ]
+    // if (process._isDev && !listAllowDev.includes(message.to)) {
+    //   console.log('============================ Send email ============================')
+    //   console.log(message)
+    //   return { message: 'Receiver not allowed.' }
+    // }
 
     return this.transporter.sendMail({
       ...this.defaults,
